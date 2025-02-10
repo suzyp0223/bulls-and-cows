@@ -33,13 +33,12 @@ function App() {
 
       return answers.indexOf(number) !== answers.lastIndexOf(number);
     });
+    // console.log("중복 검사 결과:", isDuplicate);
 
     if (isDuplicate) {
       alert("입력 값에 중복이 있어요");
       return;
     }
-
-    console.log("isDuplicate: ", isDuplicate);
 
     const { strike, ball } = randomNo.reduce(
       (prev, number, idx) => {
