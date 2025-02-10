@@ -5,6 +5,7 @@ import { generateRandomNumber } from "./random";
 function App() {
   const [randomNo] = useState(generateRandomNumber());
   const [answer, setAnswer] = useState("");
+  const [logs, setLogs] = useState([]);
 
   useEffect(() => {
     console.log("randomNo: ", randomNo);
@@ -44,7 +45,13 @@ function App() {
       }
     );
 
-    console.log("strike", strike, "ball", ball);
+    if (strike === 4) {
+      alert('정답입니다🌟🎈')
+      setLogs([...logs, `${answer} 축하합니다 정답입니다🎉🎈🌟`]);
+      return;
+    }
+
+    setLogs([...logs, `${answer} (strike: ${strike}, ball: ${ball})`]);
   };
 
   return (
@@ -57,9 +64,10 @@ function App() {
       </section>
       <h2>기록</h2>
       <ol>
-        <li>1234 (strike: 0, ball:2)</li>
-        <li>4567 (strike: 1, ball:1)</li>
-        <li>7432 (strike: 1, ball:1)</li>
+        {logs.map((log, idx) => {
+          // 반복문 사용시 key={} 키값 사용해야함 변경이 있을시 전부다 렌더링해야함. 키값으로 변경된것만 렌더링하기 위함.
+          return <li key={`${log}_${idx}`}>{log}</li>;
+        })}
       </ol>
     </div>
   );
