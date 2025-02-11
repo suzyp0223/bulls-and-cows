@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { generateRandomNumber } from "./random";
+import Logs from "./Logs";
 
 function App() {
   const [randomNo, setRandomNo] = useState(generateRandomNumber());
   const [answer, setAnswer] = useState("");
   const [logs, setLogs] = useState([]);
   const [isSuccess, setIsSuccess] = useState(false);
+  console.log("randomNo정답: ", randomNo);
 
   const handleAnswerChange = (event) => {
     setAnswer(event.target.value);
@@ -15,6 +17,7 @@ function App() {
   const handleSubmit = () => {
     const answers = answer.split("").map((item) => Number(item));
 
+    // // input에 oninput으로 리펙토링함
     // if (answers.some((number) => isNaN(number))) {
     //   alert("숫자만 입력해주세요");
     //   return;
@@ -50,6 +53,7 @@ function App() {
           };
         }
         // 다른 자리에 수가 존재하면 볼
+
         if (answers.includes(number)) {
           return {
             ...prev,
@@ -84,7 +88,6 @@ function App() {
     setLogs([]);
     setIsSuccess(false);
   };
-
   return (
     <div className="App">
       <h1>숫자 야구 게임</h1>
@@ -108,13 +111,7 @@ function App() {
           <button onClick={handleSubmit}>맞춰보기</button>
         )}
       </section>
-      <h2>기록</h2>
-      <ol>
-        {logs.map((log, idx) => {
-          // 반복문 사용시 key={} 키값 사용해야함 변경이 있을시 전부다 렌더링해야함. 키값으로 변경된것만 렌더링하기 위함.
-          return <li key={`${log}_${idx}`}>{log}</li>;
-        })}
-      </ol>
+      <Logs logs={logs} />
     </div>
   );
 }
