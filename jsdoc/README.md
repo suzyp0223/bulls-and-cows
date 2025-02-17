@@ -12,3 +12,7 @@ index.html -> 라이브 서버, 크롬으로 오픈.
 
 <!-- 2번째 방법 -->
 EXPLORER -> NPM SCRIPTS -> 해당 프로젝트/package.json -> docs > run클릭
+
+<!-- 깃헙 페이지 배포 방법 -->
+깃헙으로 올리고
+setting> pages> branch> main > /docs > save
