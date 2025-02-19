@@ -25,9 +25,10 @@ class TodoApp {
     controlButtonElements.forEach((button) => {
       const [, buttonClass] = button.classList.value.split(" ");
 
-      button.addEventListener("click", (event: MouseEvent) => {
-       const currentTodoList = this.getTodoListByFilter(buttonClass);
+      button.addEventListener("click", (event: MouseEventInit) => {
+        const currentTodoList = this.getTodoListByFilter(buttonClass);
 
+        this.toggleFilterStatus(event);
         this.render(currentTodoList);
       });
     });
@@ -35,6 +36,23 @@ class TodoApp {
     // 타입가드
     if (inputEl) {
       inputEl?.addEventListener("keydown", this.addTodo.bind(this));
+    }
+  }
+
+  // 상태 변경함수
+  toggleFilterStatus(event: MouseEventInit) {
+    // 1. 돔을 가져온다.
+    const controlButtonElements = document.querySelectorAll(
+      "div.control > button.btn"
+    );
+    // 초기화, 지운다.
+    controlButtonElements.forEach((btn) => btn.classList.remove("active"));
+
+    const targetElement = ((event as MouseEvent).target) as HTMLButtonElement;
+
+    // active클래스를 붙인다
+    if (targetElement) {
+      targetElement.classList.add("active");
     }
   }
 
