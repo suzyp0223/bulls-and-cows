@@ -90,20 +90,53 @@ class TodoApp {
    * @param {string} [todo.text]  -수정될 내용
    * @param {string} [todo.status]  -수정될 상태
    */
-  // updateTodo({ id, text, status }) {}
+  updateTodo(event: MouseEvent, selectedId: Todo["id"]) {
+    const inputText =
+      (event as MouseEvent).target &&
+      ((event as MouseEvent).target as HTMLDivElement).innerText;
+
+    if (!inputText) {
+      return;
+    }
+    const selectedIndex = this.todoList.findIndex(
+      (todo) => todo.id === selectedId
+    );
+    const selectedTodo = this.todoList[selectedIndex];
+    const newTodo = {
+      ...selectedTodo,
+      content: inputText,
+    };
+
+    this.todoList.splice(selectedIndex, 1, newTodo);
+    this.render(this.todoList);
+  }
+
+  updateTodoStatus(selectedId: Todo["id"]) {
+    const selectedIndex = this.todoList.findIndex(
+      (todo) => todo.id === selectedId
+    );
+    const selectedTodo = this.todoList[selectedIndex];
+    const newTodo = {
+      ...selectedTodo,
+      isDone: !selectedTodo.isDone,
+    };
+
+    // 인덱스 받고, 1개 지우고, newTodo추가
+    this.todoList.splice(selectedIndex, 1, newTodo);
+    this.render(this.todoList);
+  }
 
   /**
    * 특정 할 일을 제거할 수 있다.
    *
    * @param {number} id
    */
-  removeTodo(selectedId: Todo['id']) {
+  removeTodo(selectedId: Todo["id"]) {
     // console.log("selectedId: ", selectedId);
 
     this.todoList = this.todoList.filter((todo) => todo.id !== selectedId);
     // console.log('this.todoList: ', this.todoList);
     this.render(this.todoList);
-
   }
 
   generateTodoList(todo: Todo) {
@@ -119,8 +152,17 @@ class TodoApp {
     containerEl.classList.add("item");
     containerEl.innerHTML = todoTemplate;
 
+    const contentEl = containerEl.querySelector(".content");
+    const chcekboxEl = containerEl.querySelector("input[type=checkbox]");
     const deleteButtonEl = containerEl.querySelector(".todoButton");
-    deleteButtonEl?.addEventListener('click', () => this.removeTodo(todo.id));
+
+    contentEl?.addEventListener("blur", (event) =>
+      this.updateTodo(event, todo.id)
+    );
+    chcekboxEl?.addEventListener("change", () =>
+      this.updateTodoStatus(todo.id)
+    );
+    deleteButtonEl?.addEventListener("click", () => this.removeTodo(todo.id));
 
     if (deleteButtonEl) {
       containerEl.appendChild(deleteButtonEl);
@@ -131,11 +173,11 @@ class TodoApp {
   // Todo[] = [] 호출 시 인자가 없으면 빈 배열이 자동으로 전달.
   render(todoList: Todo[] = []) {
     const todoListEl = document.querySelector(".todo-items");
-    
+
     // todoListEl?.replaceChildren();
 
     if (todoListEl) {
-      todoListEl.innerHTML = '';
+      todoListEl.innerHTML = "";
       // todoListEl.replaceChildren();
     }
 
