@@ -48,7 +48,7 @@ class TodoApp {
     // 초기화, 지운다.
     controlButtonElements.forEach((btn) => btn.classList.remove("active"));
 
-    const targetElement = ((event as MouseEvent).target) as HTMLButtonElement;
+    const targetElement = (event as MouseEvent).target as HTMLButtonElement;
 
     // active클래스를 붙인다
     if (targetElement) {
@@ -214,9 +214,11 @@ class TodoApp {
   // Todo[] = [] 호출 시 인자가 없으면 빈 배열이 자동으로 전달.
   render(todoList: Todo[] = []) {
     const todoListEl = document.querySelector(".todo-items");
+    const todoCountEl = <HTMLSpanElement>document.querySelector("#todo-count");
+    todoCountEl?.replaceChildren();
 
+    // 3가지 방법 다 같은 동작.
     // todoListEl?.replaceChildren();
-
     if (todoListEl) {
       todoListEl.innerHTML = "";
       // todoListEl.replaceChildren();
@@ -230,10 +232,13 @@ class TodoApp {
 
     fragment.append(...todoListComponent);
     // todoListEl?.appendChild(fragment);  //?를 넣으면 ?앞 값이 존재할때만 동작 아래 타입가드와 동일함.
-
     // 타입가드 - null일것 같을때
     if (todoListEl) {
       todoListEl.appendChild(fragment);
+    }
+
+    if (todoCountEl) {
+      todoCountEl.innerText = String(todoList.length);
     }
   }
 }
