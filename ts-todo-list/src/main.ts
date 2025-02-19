@@ -97,7 +97,14 @@ class TodoApp {
    *
    * @param {number} id
    */
-  // removeTodo(id) {}
+  removeTodo(selectedId: Todo['id']) {
+    // console.log("selectedId: ", selectedId);
+
+    this.todoList = this.todoList.filter((todo) => todo.id !== selectedId);
+    // console.log('this.todoList: ', this.todoList);
+    this.render(this.todoList);
+
+  }
 
   generateTodoList(todo: Todo) {
     const containerEl = document.createElement("div");
@@ -106,18 +113,31 @@ class TodoApp {
     <div class='content ${todo.isDone && "checked"}' contentEditable>${
       todo.content
     }</div>
-    <button>X</button>
+    <button class="todoButton">X</button>
     </div>`;
 
     containerEl.classList.add("item");
     containerEl.innerHTML = todoTemplate;
 
+    const deleteButtonEl = containerEl.querySelector(".todoButton");
+    deleteButtonEl?.addEventListener('click', () => this.removeTodo(todo.id));
+
+    if (deleteButtonEl) {
+      containerEl.appendChild(deleteButtonEl);
+    }
     return containerEl;
   }
 
   // Todo[] = [] 호출 시 인자가 없으면 빈 배열이 자동으로 전달.
   render(todoList: Todo[] = []) {
     const todoListEl = document.querySelector(".todo-items");
+    
+    // todoListEl?.replaceChildren();
+
+    if (todoListEl) {
+      todoListEl.innerHTML = '';
+      // todoListEl.replaceChildren();
+    }
 
     // 가상의 돔. 실질적으로 그려지지않은 상태
     const fragment = document.createDocumentFragment();
