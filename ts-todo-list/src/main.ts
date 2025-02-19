@@ -6,12 +6,23 @@ interface Todo {
   isDone: boolean;
 }
 
+enum FilterStatus {
+  All = "all",
+  Completed = "complete",
+  Active = "not-complete",
+}
+// enum을 리터럴로
+// type FilterType = (typeof FilterStatus)[keyof typeof FilterStatus];
+type FilterType = `${FilterStatus}`;
+
 class TodoApp {
+  filterStatus: FilterType;
   todoList: Todo[];
 
   /** @constructs TodoApp */
   constructor() {
     this.todoList = [];
+    this.filterStatus = FilterStatus.All;
     this.initEvent();
   }
 
@@ -26,10 +37,10 @@ class TodoApp {
       const [, buttonClass] = button.classList.value.split(" ");
 
       button.addEventListener("click", (event: MouseEventInit) => {
-        const currentTodoList = this.getTodoListByFilter(buttonClass);
+        this.filterStatus = buttonClass as FilterType;
 
         this.toggleFilterStatus(event);
-        this.render(currentTodoList);
+        this.render();
       });
     });
 
@@ -85,7 +96,7 @@ class TodoApp {
     });
 
     target.value = "";
-    this.render(this.todoList);
+    this.render();
   }
 
   /**
@@ -112,14 +123,14 @@ class TodoApp {
    * @param {string} filterType
    * @returns {Todo[]} 필터링된 할일
    */
-  getTodoListByFilter(filterType: string) {
-    if (filterType === "all") {
+  getTodoListByFilter(filterType: FilterType) {
+    if (filterType === FilterStatus.All) {
       return this.todoList;
     }
-    if (filterType === "complete") {
+    if (filterType === FilterStatus.Completed) {
       return this.todoList.filter((todo) => todo.isDone);
     }
-    if (filterType === "not-complete") {
+    if (filterType === FilterStatus.Active) {
       return this.todoList.filter((todo) => !todo.isDone);
     }
   }
@@ -149,7 +160,7 @@ class TodoApp {
     };
 
     this.todoList.splice(selectedIndex, 1, newTodo);
-    this.render(this.todoList);
+    this.render();
   }
 
   updateTodoStatus(selectedId: Todo["id"]) {
@@ -164,7 +175,7 @@ class TodoApp {
 
     // 인덱스 받고, 1개 지우고, newTodo추가
     this.todoList.splice(selectedIndex, 1, newTodo);
-    this.render(this.todoList);
+    this.render();
   }
 
   /**
@@ -177,7 +188,7 @@ class TodoApp {
 
     this.todoList = this.todoList.filter((todo) => todo.id !== selectedId);
     // console.log('this.todoList: ', this.todoList);
-    this.render(this.todoList);
+    this.render();
   }
 
   generateTodoList(todo: Todo) {
@@ -212,7 +223,7 @@ class TodoApp {
   }
 
   // Todo[] = [] 호출 시 인자가 없으면 빈 배열이 자동으로 전달.
-  render(todoList: Todo[] = []) {
+  render() {
     const todoListEl = document.querySelector(".todo-items");
     const todoCountEl = <HTMLSpanElement>document.querySelector("#todo-count");
     todoCountEl?.replaceChildren();
@@ -224,21 +235,25 @@ class TodoApp {
       // todoListEl.replaceChildren();
     }
 
+    const currentTodoList = this.getTodoListByFilter(this.filterStatus);
+
     // 가상의 돔. 실질적으로 그려지지않은 상태
     const fragment = document.createDocumentFragment();
-    const todoListComponent = todoList.map((todo) =>
+    const todoListComponent = currentTodoList?.map((todo) =>
       this.generateTodoList(todo)
     );
 
-    fragment.append(...todoListComponent);
-    // todoListEl?.appendChild(fragment);  //?를 넣으면 ?앞 값이 존재할때만 동작 아래 타입가드와 동일함.
-    // 타입가드 - null일것 같을때
-    if (todoListEl) {
-      todoListEl.appendChild(fragment);
+    if (todoListComponent) {
+      fragment.append(...todoListComponent);
+      todoListEl?.appendChild(fragment); //?를 넣으면 ?앞 값이 존재할때만 동작 아래 타입가드와 동일함.
     }
+    // 타입가드 - null일것 같을때
+    // if (todoListEl) {
+    //   todoListEl.appendChild(fragment);
+    // }
 
-    if (todoCountEl) {
-      todoCountEl.innerText = String(todoList.length);
+    if (todoCountEl && currentTodoList) {
+      todoCountEl.innerText = String(currentTodoList.length);
     }
   }
 }
