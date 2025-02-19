@@ -18,6 +18,19 @@ class TodoApp {
   // 이벤트 붙이는 부분
   initEvent() {
     const inputEl = document.querySelector("#todo-input");
+    const controlButtonElements = document.querySelectorAll(
+      "div.control > button.btn"
+    );
+
+    controlButtonElements.forEach((button) => {
+      const [, buttonClass] = button.classList.value.split(" ");
+
+      button.addEventListener("click", (event: MouseEvent) => {
+       const currentTodoList = this.getTodoListByFilter(buttonClass);
+
+        this.render(currentTodoList);
+      });
+    });
 
     // 타입가드
     if (inputEl) {
@@ -81,7 +94,17 @@ class TodoApp {
    * @param {string} filterType
    * @returns {Todo[]} 필터링된 할일
    */
-  // getTodoListByFilter(filterType) {}
+  getTodoListByFilter(filterType: string) {
+    if (filterType === "all") {
+      return this.todoList;
+    }
+    if (filterType === "complete") {
+      return this.todoList.filter((todo) => todo.isDone);
+    }
+    if (filterType === "not-complete") {
+      return this.todoList.filter((todo) => !todo.isDone);
+    }
+  }
 
   /**
    * 할 일의 내용과 상태를 수정할 수 있다.
