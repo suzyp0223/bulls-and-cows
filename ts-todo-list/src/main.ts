@@ -10,14 +10,44 @@ class TodoApp {
   todoList: Todo[];
 
   /** @constructs TodoApp */
-  constructor() {}
+  constructor() {
+    this.todoList = [];
+    this.initEvent();
+  }
+
+  // 이벤트 붙이는 부분
+  initEvent() {
+    const inputEl = document.querySelector("#todo-input");
+
+    inputEl.addEventListener("keydown", this.addTodo.bind(this));
+  }
 
   /**
    * 할 일을 추가할 수 있다.
-   *
+   * 엔터로 동작 > event등록
    * @param {string} text
    */
-  addTodo(text) {}
+  addTodo(event) {
+    if (event.key !== "Enter") {
+      return;
+    }
+
+    const target = event.target;
+
+    // 입력값 없을시
+    if (!target.value) {
+      return;
+    }
+
+    this.todoList.push({
+      id: this.todoList.length + 1,
+      isDone: false,
+      content: target.value,
+    });
+
+    target.value = '';
+    this.render(this.todoList);
+  }
 
   /**
    *  모든 할 일을 조회할 수 있다.
@@ -25,14 +55,16 @@ class TodoApp {
    * @returns {Todo[]} 전체 할일
    */
   getTodoList() {
-    // return this.todoList;
-    return [
-      {
-        id: 0,
-        content: "mock",
-        isDone: false,
-      },
-    ];
+    return this.todoList;
+
+    // mock 데이터
+    // return [
+    //   {
+    //     id: 0,
+    //     content: "mock",
+    //     isDone: false,
+    //   },
+    // ];
   }
 
   /**
@@ -75,12 +107,12 @@ class TodoApp {
     return containerEl;
   }
 
-  render() {
+  render(todoList = []) {
     const todoListEl = document.querySelector(".todo-items");
 
     // 가상의 돔. 실질적으로 그려지지않은 상태
     const fragment = document.createDocumentFragment();
-    const todoListComponent = this.getTodoList().map((todo) =>
+    const todoListComponent = todoList.map((todo) =>
       this.generateTodoList(todo)
     );
 
