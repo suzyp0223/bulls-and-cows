@@ -13,10 +13,14 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/uuid": "^10.0.0",
     "typescript": "^4.9.5",
     "vite": "^4.5.9"
   },
   "directories": {
     "doc": "docs"
+  },
+  "dependencies": {
+    "uuid": "^11.1.0"
   }
 }
