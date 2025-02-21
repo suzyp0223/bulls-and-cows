@@ -22,8 +22,6 @@ class KanbanApp {
 
     const board = document.querySelector(".todo-container");
 
-    // console.log('this.list: ', this.list);
-
     if (board) {
       board.innerHTML = "";
 
@@ -42,10 +40,11 @@ class KanbanApp {
 
   attachEvent() {
     const $addListButton = document.querySelector(".board.add");
+    const $removeListButton = document.querySelectorAll(".kanban-delete");
 
     // $addListButton?.addEventListener("click", () => alert("test"));
     $addListButton?.addEventListener("click", () => {
-      const newId = Number(uuidv4());
+      const newId = uuidv4();
 
       this.list = [
         ...this.list,
@@ -58,11 +57,26 @@ class KanbanApp {
 
       this.render();
     });
+
+    $removeListButton?.forEach((button) => {
+      button?.addEventListener("click", ({ currentTarget }) => {
+        const [, selectedId] = (currentTarget as HTMLButtonElement).id.split(
+          "kanban-",
+        );
+
+        this.removeList(selectedId);
+      });
+    });
   }
 
-  generateList({id, title, list}: TodoList) {
-    const $list = document.createElement('section');
-    $list.classList.add('board');
+  removeList(selectedId: string) {
+    this.list = this.list.filter((list) => list.id !== selectedId);
+    this.render();
+  }
+
+  generateList({ id, title, list }: TodoList) {
+    const $list = document.createElement("section");
+    $list.classList.add("board");
 
     const addButtonElement = `
       <section class="todo">
@@ -139,8 +153,7 @@ class KanbanApp {
 
     $list.innerHTML = $item;
     return $list;
-    }
-
+  }
 }
 
 new KanbanApp(defaultKanban);
