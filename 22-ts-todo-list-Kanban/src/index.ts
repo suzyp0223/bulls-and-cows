@@ -2,7 +2,8 @@ import "./style.css";
 
 import { v4 as uuidv4 } from "uuid";
 import { defaultKanban, todoList } from "./mock";
-import { TodoList } from "./type";
+import { Todo, TodoList } from "./type";
+import { createGlobalStyle } from "styled-components";
 
 class KanbanApp {
   list: TodoList[];
@@ -41,6 +42,7 @@ class KanbanApp {
   attachEvent() {
     const $addListButton = document.querySelector(".board.add");
     const $removeListButton = document.querySelectorAll(".kanban-delete");
+    const $addTodoButton = document.querySelectorAll(".todo-item.add");
 
     // $addListButton?.addEventListener("click", () => alert("test"));
     $addListButton?.addEventListener("click", () => {
@@ -61,12 +63,83 @@ class KanbanApp {
     $removeListButton?.forEach((button) => {
       button?.addEventListener("click", ({ currentTarget }) => {
         const [, selectedId] = (currentTarget as HTMLButtonElement).id.split(
-          "kanban-",
+          "kanban-"
         );
 
         this.removeList(selectedId);
       });
     });
+
+    $addTodoButton.forEach((button) => {
+      button.addEventListener("click", ({ currentTarget }) => {
+        const [, category] = (currentTarget as HTMLButtonElement).id.split(
+          "add-todo-"
+        );
+
+        this.addTodo(category);
+        this.render();
+      });
+    });
+  }
+
+  // 카테고리받고 거기에 맞는 돔을 만들어 반환
+  addTodo(category: string) {
+    // console.log('category: ', category);
+    const $list = document.createElement("section");
+    $list.classList.add("todo");
+    $list.setAttribute("id", "add-item");
+
+    const template = `
+    <div class="todo-item add-item">
+      <div>
+        <div class="item-header">
+          <div class="item-title">
+            <span class="item-title-icon"></span>
+            <div class="title add-title" contenteditable>제목</div>
+          </div>
+        </div>
+        <div class="todo-content add-content" contenteditable>내용</div>
+      </div>
+      <div class="todo-control">
+        <button class="cancel">Cancel</button>
+        <button class="add">Add Item</button>
+      </div>
+    </div>
+    `;
+
+    $list.innerHTML = template;
+
+    $list
+      .querySelector(".add")
+      ?.addEventListener("click", ({ currentTarget }) => {
+        const listId = this.list.findIndex(({ title }) => title === category);
+
+        if (currentTarget && currentTarget instanceof HTMLButtonElement) {
+          const $todo = currentTarget.closest(".todo-item");
+          const title = $todo?.querySelector(".add-title")?.textContent;
+          const body = $todo?.querySelector(".add-content")?.textContent;
+
+          // const newTodoId = this.list?[listId].list.length > 0 ? uuidv4() : 0;
+
+          const newTodo: Todo = {
+            id: uuidv4(),
+            content: {
+              title: title ?? "", // 기존에 있으면 그대로 사용하고 없으면 우항값을 사용 - 널 병합 연산자
+              body: body ?? "",
+            },
+            isDone: false,
+            category: category,
+            tags: [],
+          };
+
+          const todos = [...this.list[listId].list, newTodo];
+          this.list[listId].list = todos;
+
+          this.render();
+        }
+
+        return $list;
+      });
   }
 
   removeList(selectedId: string) {
