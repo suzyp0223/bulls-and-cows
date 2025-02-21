@@ -1,9 +1,11 @@
 import "./style.css";
 
 import { v4 as uuidv4 } from "uuid";
-import { defaultKanban, todoList } from "./mock";
+import { defaultKanban } from "./mock";
 import { Todo, TodoList } from "./type";
-import { createGlobalStyle } from "styled-components";
+import cardTemplate from "./templates/cardTemplate";
+import addListButtonTemplate from "./templates/addListButtonTemplate";
+import listTemplate from "./templates/listTemplate";
 
 class KanbanApp {
   list: TodoList[];
@@ -102,25 +104,7 @@ class KanbanApp {
     $list.classList.add("todo");
     $list.setAttribute("id", "add-item");
 
-    const template = `
-    <div class="todo-item add-item">
-      <div>
-        <div class="item-header">
-          <div class="item-title">
-            <span class="item-title-icon"></span>
-            <div class="title add-title" contenteditable>제목</div>
-          </div>
-        </div>
-        <div class="todo-content add-content" contenteditable>내용</div>
-      </div>
-      <div class="todo-control">
-        <button class="cancel">Cancel</button>
-        <button class="add">Add Item</button>
-      </div>
-    </div>
-    `;
-
-    $list.innerHTML = template;
+    $list.innerHTML = cardTemplate();
 
     $list
       .querySelector(".add")
@@ -154,7 +138,8 @@ class KanbanApp {
     return $list;
   }
 
-  removeTodo(selectedId: string, category: string) {
+  // category: string = '' 없으면 빈값으로 처리
+  removeTodo(selectedId: string, category: string = "") {
     const listId = this.list.findIndex((list) => list.title === category);
     const targetList = this.list.find((list) => list.title === category);
 
@@ -163,7 +148,7 @@ class KanbanApp {
         (todo) => todo.id !== selectedId
       );
 
-      this.render();  // 변경된 리스트 상태를 화면에 반영
+      this.render(); // 변경된 리스트 상태를 화면에 반영
     }
   }
 
@@ -176,78 +161,15 @@ class KanbanApp {
     const $list = document.createElement("section");
     $list.classList.add("board");
 
-    const addButtonElement = `
-      <section class="todo">
-        <button class="todo-item add" id="add-todo-${title}">
-          <span class="plus-btn blue"></span>
-        </button>
-      </section>`;
+    const addButtonElement = addListButtonTemplate(title);
 
     const listHTML = list
       ?.map(({ id: todoId, content, tags }) => {
-        return `
-        <section class="todo" id="${title}+${todoId}">
-          <div class="todo-item">
-            <div class="wrapper">
-              <div class="item-header">
-                <div class="item-title">
-                  <span class="item-title-icon"></span>
-                  <div class="title">${content ? content.title : ""}</div>
-                </div>
-              <div class="todo-control">
-                <button class="delete-item" id="delete-todo-${todoId}">
-                  <span class="delete-btn"></span>
-                </button>
-              </div>
-              </div>
-
-              <div class="todo-content">${content ? content.body : ""}</div>
-            </div>
-
-            <div class="tags">
-              ${
-                tags &&
-                tags
-                  .map(({ id: tagId, content }) => {
-                    return `
-                    <span class="tag" id="tag-${todoId}">
-                      ${content}
-                      <button class="delete-tag delete-btn" id="todo-delete-${tagId}"></button>
-                    </span>`;
-                  })
-                  .join("")
-              }
-
-              <div class="tag add-tag-btn" >
-                <span contentEditable>태그</span>
-                <button class="add-btn" id="todo-${todoId}"></button>
-              </div>
-
-            </div>
-          </div>
-        </section>
-        `;
+        return listTemplate({ title, todoId, content, tags });
       })
       .join("");
 
-    const $item = `
-      <section class="board-title">
-        <div class="board-header">
-          <div class="total"><span id="todo-count">${
-            list?.length ?? 0
-          }</span></div>
-          <h2 class="title">${title}</h2>
-        </div>
-
-        <div class="board-control">
-          <button class='kanban-delete' id="kanban-${id}"><span class="delete-btn"></span></button>
-        </div>
-      </section>
-
-      <div class="wrapper">
-        ${addButtonElement}
-        ${list?.length ? listHTML : ""}
-      </div>`;
+    const $item =    ;
 
     $list.innerHTML = $item;
     return $list;
