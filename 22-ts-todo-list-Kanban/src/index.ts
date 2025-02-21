@@ -72,12 +72,13 @@ class KanbanApp {
 
     $addTodoButton.forEach((button) => {
       button.addEventListener("click", ({ currentTarget }) => {
-        const [, category] = (currentTarget as HTMLButtonElement).id.split(
-          "add-todo-"
-        );
+        if (currentTarget instanceof HTMLButtonElement) {
+          const [, category] = currentTarget.id.split("add-todo-");
 
-        this.addTodo(category);
-        this.render();
+          // Todo 추가시 InProgress,Done에도 똑같이 추가
+          // prepend - 무언가를 앞에 끼워 넣을수 있는 API. /append-뒤에
+          currentTarget?.closest(".wrapper")?.prepend(this.addTodo(category));
+        }
       });
     });
   }
@@ -137,9 +138,8 @@ class KanbanApp {
 
           this.render();
         }
-
-        return $list;
       });
+    return $list;
   }
 
   removeList(selectedId: string) {
