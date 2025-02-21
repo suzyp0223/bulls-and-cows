@@ -43,6 +43,7 @@ class KanbanApp {
     const $addListButton = document.querySelector(".board.add");
     const $removeListButton = document.querySelectorAll(".kanban-delete");
     const $addTodoButton = document.querySelectorAll(".todo-item.add");
+    const $removeTodoButton = document.querySelectorAll(".delete-item");
 
     // $addListButton?.addEventListener("click", () => alert("test"));
     $addListButton?.addEventListener("click", () => {
@@ -78,6 +79,17 @@ class KanbanApp {
           // Todo 추가시 InProgress,Done에도 똑같이 추가
           // prepend - 무언가를 앞에 끼워 넣을수 있는 API. /append-뒤에
           currentTarget?.closest(".wrapper")?.prepend(this.addTodo(category));
+        }
+      });
+    });
+
+    $removeTodoButton.forEach((button) => {
+      button.addEventListener("click", ({ currentTarget }) => {
+        if (currentTarget && currentTarget instanceof HTMLButtonElement) {
+          const category = currentTarget?.closest(".todo")?.id.split("+")[0];
+          const [, selectedId] = currentTarget.id.split("delete-todo-");
+
+          this.removeTodo(selectedId, category);
         }
       });
     });
@@ -140,6 +152,19 @@ class KanbanApp {
         }
       });
     return $list;
+  }
+
+  removeTodo(selectedId: string, category: string) {
+    const listId = this.list.findIndex((list) => list.title === category);
+    const targetList = this.list.find((list) => list.title === category);
+
+    if (targetList) {
+      this.list[listId].list = targetList.list.filter(
+        (todo) => todo.id !== selectedId
+      );
+
+      this.render();  // 변경된 리스트 상태를 화면에 반영
+    }
   }
 
   removeList(selectedId: string) {
