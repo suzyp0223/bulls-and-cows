@@ -6,6 +6,7 @@ import { Todo, TodoList } from "./type";
 import cardTemplate from "./templates/cardTemplate";
 import addListButtonTemplate from "./templates/addListButtonTemplate";
 import listTemplate from "./templates/listTemplate";
+import listHeaderTemplate from "./templates/listHeaderTemplate";
 
 class KanbanApp {
   list: TodoList[];
@@ -169,7 +170,12 @@ class KanbanApp {
       })
       .join("");
 
-    const $item =    ;
+    const $item = `
+    ${listHeaderTemplate({ list, title, id })}
+    <div class="wrapper">
+    ${addButtonElement}
+    ${list?.length ? listHTML : ""}
+    </div>`;
 
     $list.innerHTML = $item;
     return $list;
