@@ -6,7 +6,7 @@ export interface Todo {
   };
   isDone: boolean;
   category: string;
-  tags?: {
+  tags: {
     id: string;
     content: string;
   }[];

@@ -47,6 +47,8 @@ class KanbanApp {
     const $removeListButton = document.querySelectorAll(".kanban-delete");
     const $addTodoButton = document.querySelectorAll(".todo-item.add");
     const $removeTodoButton = document.querySelectorAll(".delete-item");
+    const $addTagButton = document.querySelectorAll(".add-btn");
+    const $removeTagButton = document.querySelectorAll(".delete-tag");
 
     // $addListButton?.addEventListener("click", () => alert("test"));
     $addListButton?.addEventListener("click", () => {
@@ -96,6 +98,82 @@ class KanbanApp {
         }
       });
     });
+
+    $addTagButton.forEach((button) => {
+      button.addEventListener("click", ({ currentTarget }) => {
+        if (!(currentTarget instanceof HTMLButtonElement)) {
+          return;
+        }
+
+        const category = currentTarget.closest(".todo")?.id.split("+")[0];
+        const selectedId = currentTarget.id.split("todo-")[1];
+
+        const listId = this.list.findIndex((list) => list.title === category);
+        const targetList = this.list.find((list) => list.title === category);
+
+        const todo = targetList?.list.find((todo) => todo.id === selectedId);
+        const todoIndex = targetList?.list.findIndex(
+          (todo) => todo.id === selectedId
+        );
+
+        const tagContent = currentTarget
+          .closest(".tag")
+          ?.querySelector("span")?.textContent;
+
+        todo?.tags?.push({
+          id: uuidv4(),
+          content: tagContent ?? "태그",
+        });
+
+        if (todoIndex && todo) {
+          this.list[listId].list.splice(todoIndex, 1, todo);
+        }
+
+        this.render();
+        this.attachEvent();
+      });
+    });
+
+    $removeTagButton.forEach((button) => {
+      button.addEventListener("click", (event) => {
+        const currentTarget = event.currentTarget as HTMLButtonElement;
+        console.log("🟢 태그삭제버튼 클릭2");
+
+        // ✅ tagId 추출: id="todo-delete-${abc}" → "abc"
+        const tagId = currentTarget.id.replace("todo-delete-", "");
+
+        // ✅ todoId 추출: 부모 .tag의 span(id="tag-${todoId}")
+        const parentTagEl = currentTarget.closest(".tag");
+        const todoId = parentTagEl?.id.replace("tag-", "");
+
+        // ✅ category 추출: 가장 가까운 .todo의 id="InProgress+xxx"
+        const category = currentTarget.closest(".todo")?.id.split("+")[0];
+
+        if (!category || !todoId || !tagId) {
+          console.warn("값 추출 실패", { category, todoId, tagId });
+          return;
+        }
+
+        // ✅ 해당 todo 찾아서 tag 삭제
+        const listIndex = this.list.findIndex(
+          (list) => list.title === category
+        );
+        const targetList = this.list[listIndex];
+        const todoIndex = targetList.list.findIndex(
+          (todo) => todo.id === todoId
+        );
+        const todo = targetList.list[todoIndex];
+
+        if (todo) {
+          todo.tags = todo.tags.filter((tag) => tag.id !== tagId);
+          this.list[listIndex].list.splice(todoIndex, 1, todo);
+        }
+
+        // ✅  UI 재렌더링 및 이벤트 재연결
+        this.render();
+        this.attachEvent(); // ✅ 이벤트 재연결 필수
+      });
+    });
   }
 
   // 카테고리받고 거기에 맞는 돔을 만들어 반환
@@ -141,6 +219,7 @@ class KanbanApp {
 
   // category: string = '' 없으면 빈값으로 처리
   removeTodo(selectedId: string, category: string = "") {
+    //listId- 어떤 리스트에서 지우는지 알아야함
     const listId = this.list.findIndex((list) => list.title === category);
     const targetList = this.list.find((list) => list.title === category);
 
